@@ -86,3 +86,10 @@ HOW TO RUN THE PROJECTS:
   ```
 
   NOTE: Make sure the API (question 1) is already running in order for the question 2 and question 3 to be able to run correctly
+
+  ALSO make sure you have run:
+  ```
+  npm install
+  ```
+
+  in each project (question 1, question 2, and question 3)
