@@ -7,13 +7,29 @@ function App() {
 
   const [text, setText] = useState();
 
-  useEffect( () =>{
+  // ORIGINAL CODE
+  // useEffect( () =>{
+  //   fetch(
+  //     "http://localhost:3000"
+  //   ).then( (res) => res.json() )
+  //   .then( (r) => {
+  //     console.log(r);
+  //   } );
+
+  // }, []);
+
+  // WORKING SOLUTION
+  // I have also added "proxy": "http://localhost:3000" in package.json
+  useEffect(() =>{
     fetch(
-      "http://localhost:3000"
-    ).then( (res) => res.json() )
+      "/welcome"
+    ).then(async (res) => {
+      const object = await res.json()
+      setText(object.message)
+    })
     .then( (r) => {
       console.log(r);
-    } );
+    });
 
   }, []);
 
