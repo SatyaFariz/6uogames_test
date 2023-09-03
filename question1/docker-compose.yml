@@ -1,0 +1,48 @@
+version: '3'
+
+
+networks:
+  net:
+    name: 6uo-network
+    ipam: 
+      config:
+        - subnet: 172.20.0.0/24
+
+
+services:
+
+  db:
+    image: mysql:8.0.27
+    command: '--default-authentication-plugin=mysql_native_password'
+    volumes:
+      - ./db_v_0_5_1:/var/lib/mysql
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=6uoPlatform
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=password
+    expose:
+    - 3306
+    networks:
+      net:
+        ipv4_address: 172.20.0.8
+
+  uo_games_api:
+    image: node:latest
+    volumes:
+      - ./6uoGamesAPI:/code
+    working_dir: /code
+    command:  npm start
+    ports:
+      - 3000:3000
+    depends_on:
+      - db
+    environment:
+      - Platform_host=db
+      - ScheduleTask_host=db
+      - gamePlacePlatform_host=db
+    networks:
+      net:
+        ipv4_address: 172.20.0.5
+
