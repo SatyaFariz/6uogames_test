@@ -1,12 +1,21 @@
 version: '3'
 
-
+# ORIGINAL CODE
+# networks:
+#   net:
+#     name: 6uo-network
+#     ipam: 
+#       config:
+#         - subnet: 172.20.0.0/24
+# somehow doesn't work on my machine due to network address conflict and my time is running out, so I just changed it
 networks:
-  net:
-    name: 6uo-network
-    ipam: 
-      config:
-        - subnet: 172.20.0.0/24
+  6uo-games:
+    driver: bridge
+
+# ADDITIONAL CODE
+# can't connect to the DB with the provided volume so I create this instead
+volumes:
+  6uogames-data:
 
 
 services:
@@ -15,7 +24,10 @@ services:
     image: mysql:8.0.27
     command: '--default-authentication-plugin=mysql_native_password'
     volumes:
-      - ./db_v_0_5_1:/var/lib/mysql
+      - 6uogames-data:/var/lib/mysql
+    # ORIGINAL CODE
+    # volumes:
+    #   - ./db_v_0_5_1:/var/lib/mysql
     restart: always
     environment:
       - MYSQL_ROOT_PASSWORD=password
@@ -24,9 +36,12 @@ services:
       - MYSQL_PASSWORD=password
     expose:
     - 3306
+    # ORIGINAL CODE
+    # networks:
+    #   net:
+    #     ipv4_address: 172.20.0.8
     networks:
-      net:
-        ipv4_address: 172.20.0.8
+      - 6uo-games
 
   uo_games_api:
     image: node:latest
@@ -42,7 +57,23 @@ services:
       - Platform_host=db
       - ScheduleTask_host=db
       - gamePlacePlatform_host=db
+    # ORIGINAL CODE
+    # networks:
+    #   net:
+    #     ipv4_address: 172.20.0.5
     networks:
-      net:
-        ipv4_address: 172.20.0.5
+      - 6uo-games
+
+  # ADDITIONAL CODE
+  # I had to initialize the authentication table and populate its data
+  # wait until 60 seconds until the data population begins
+  populate_data:
+    image: mysql:8.0.27
+    depends_on:
+      - db
+    volumes:
+      - ./init_table.sql:/init_table.sql
+    networks:
+      - 6uo-games
+    command: /bin/bash -c "sleep 60 && mysql -h db -u admin --password=password --database 6uoPlatform < /init_table.sql"
 
