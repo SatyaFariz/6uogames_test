@@ -10,7 +10,8 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use('/', indexRouter);
+// app.use('/', indexRouter); // Original code
+app.use('/welcome', indexRouter); // Working solution for question3
 app.use('/login', loginRouter);
 
 app.all('*', (req, res) => {
